@@ -433,6 +433,7 @@ const App: React.FC = () => {
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     const [isPisaPreview, setIsPisaPreview] = useState(false); // PISA Preview toggle
     const [isHistoryPreview, setIsHistoryPreview] = useState(false);
+    const [pendingPreviewView, setPendingPreviewView] = useState<'chart' | 'history' | 'compare'>('chart');
     const [showFurcation, setShowFurcation] = useState(false); // Global Furcation involvement visibility state
     const [previewPlaqueMode, setPreviewPlaqueMode] = useState<'all' | 'plaque-only' | 'plaque-none'>('all');
     const [isCompareMode, setIsCompareMode] = useState(false); // Comparison Mode State
@@ -655,11 +656,35 @@ const App: React.FC = () => {
         }
     };
 
+    const activatePreviewView = (view: 'chart' | 'history' | 'compare') => {
+        setIsPreviewMode(true);
+        setIsHistoryPreview(view === 'history');
+        setIsPisaPreview(false);
+        if (view === 'compare') {
+            handleCompareClick();
+        } else {
+            setIsCompareMode(false);
+            setCompareTargetDates([]);
+            setComparisonData({});
+        }
+        if (view === 'history') setZoomLevel(0.7);
+    };
+
+    const requestPreviewView = (view: 'chart' | 'history' | 'compare') => {
+        if (!isPreviewMode && isDirty) {
+            setPendingPreviewView(view);
+            setIsSaveConfirmModalOpen(true);
+        } else {
+            activatePreviewView(view);
+        }
+    };
+
     const handleSaveAndPreview = async () => {
         const success = await handleSave();
         if (success) {
             setIsSaveConfirmModalOpen(false);
-            setIsPreviewMode(true);
+            activatePreviewView(pendingPreviewView);
+            setPendingPreviewView('chart');
         }
     };
 
@@ -1880,7 +1905,7 @@ const App: React.FC = () => {
                                     if (isPreviewMode) {
                                         setIsPreviewMode(false); setIsPisaPreview(false); setIsHistoryPreview(false); setShowFurcation(false); setPreviewPlaqueMode('all'); setIsCompareMode(false); setCompareTargetDates([]); setZoomLevel(0.7); setPreviewContentHeight(0);
                                     } else {
-                                        if (isDirty) setIsSaveConfirmModalOpen(true); else setIsPreviewMode(true);
+                                        requestPreviewView('chart');
                                     }
                                 }}
                             >
@@ -1941,23 +1966,20 @@ const App: React.FC = () => {
                                 <button onPointerDown={handleZoomIn} className="w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded active:bg-slate-200 transition-colors font-bold text-lg leading-none pb-1" title="拡大">+</button>
                             </div>
                         )}
-                        {isPreviewMode && (
-                            <div className="flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5 shadow-inner h-9">
-                                <button onClick={() => { setIsHistoryPreview(false); setIsPisaPreview(false); }} aria-pressed={!isHistoryPreview && !isPisaPreview} className={`px-3 h-full rounded-md text-xs font-bold transition-all ${!isHistoryPreview && !isPisaPreview ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}>チャート</button>
-                                {measurementMethod === '6-point' && <button onClick={() => { setIsHistoryPreview(false); setIsPisaPreview(true); }} aria-pressed={!isHistoryPreview && isPisaPreview} className={`px-3 h-full rounded-md text-xs font-bold transition-all ${!isHistoryPreview && isPisaPreview ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500'}`}>PISA</button>}
-                                <button onClick={() => setIsHistoryPreview(true)} aria-pressed={isHistoryPreview} className={`px-3 h-full rounded-md text-xs font-bold transition-all ${isHistoryPreview ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500'}`}>経過（モック）</button>
-                            </div>
-                        )}
-                        {isPreviewMode && !isHistoryPreview && (
-                            <WithTooltip label={isCompareMode ? "比較終了" : "比較モード"} showLabels={showLabels}>
-                                <button
-                                    className={`p-2 border rounded-lg shadow-sm active:scale-95 transition-all h-9 flex items-center justify-center ${isCompareMode ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-white text-slate-600 border-slate-200'}`}
-                                    onPointerDown={handleCompareClick}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m8.25-8.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-7.5A2.25 2.25 0 0 1 8.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 0 0-2.25 2.25v6" /></svg>
+                        <div className="flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-lg p-0.5 h-9" role="group" aria-label="表示切り替え">
+                            <WithTooltip label="チャート" showLabels={showLabels}>
+                                <button onClick={() => requestPreviewView('chart')} title="チャート" aria-label="チャート" aria-pressed={isPreviewMode && !isHistoryPreview && !isPisaPreview && !isCompareMode} className={`w-9 h-8 rounded-md flex items-center justify-center transition-colors ${isPreviewMode && !isHistoryPreview && !isPisaPreview && !isCompareMode ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-blue-50'}`}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18M3 15h18M9 4v16M15 4v16" /></svg>
                                 </button>
                             </WithTooltip>
-                        )}
+                            <WithTooltip label="経過" showLabels={showLabels}>
+                                <button onClick={() => requestPreviewView('history')} title="経過" aria-label="経過" aria-pressed={isPreviewMode && isHistoryPreview} className={`w-9 h-8 rounded-md flex items-center justify-center transition-colors ${isPreviewMode && isHistoryPreview ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-blue-50'}`}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5" aria-hidden="true"><path d="M4 3v17h17M7 15l4-5 4 3 5-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                </button>
+                            </WithTooltip>
+                            <button onClick={() => requestPreviewView('compare')} title="比較" aria-pressed={isCompareMode || isCompareListOpen} className={`px-3 h-8 rounded-md text-xs font-bold transition-colors ${isCompareMode || isCompareListOpen ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-blue-50'}`}>比較</button>
+                            {isPreviewMode && measurementMethod === '6-point' && <button onClick={() => { setIsHistoryPreview(false); setIsPisaPreview(true); setIsCompareMode(false); setCompareTargetDates([]); }} aria-pressed={!isHistoryPreview && isPisaPreview} className={`px-3 h-8 rounded-md text-xs font-bold transition-colors ${!isHistoryPreview && isPisaPreview ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-blue-50'}`}>PISA</button>}
+                        </div>
                         {/* Bulk Status (Edit Mode only) */}
                         {!isPreviewMode && !isCompareMode && (
                             <div className="flex flex-col gap-1 bg-teal-50 border border-teal-200 rounded-lg px-1.5 py-1 shadow-sm">
