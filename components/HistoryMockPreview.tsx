@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const mockImageUrl = `${import.meta.env.BASE_URL}images/perio-history-mock-v3.png`;
+const mockImageUrl = `${import.meta.env.BASE_URL}images/perio-history-mock-v3.png?v=headerless`;
 
 // Fill the available preview area at the default zoom without clipping.
 const defaultZoom = 0.7;
