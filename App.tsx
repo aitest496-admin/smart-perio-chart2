@@ -1977,7 +1977,11 @@ const App: React.FC = () => {
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5" aria-hidden="true"><path d="M4 3v17h17M7 15l4-5 4 3 5-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                                 </button>
                             </WithTooltip>
-                            <button onClick={() => requestPreviewView('compare')} title="比較" aria-pressed={isCompareMode || isCompareListOpen} className={`px-3 h-8 rounded-md text-xs font-bold transition-colors ${isCompareMode || isCompareListOpen ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-blue-50'}`}>比較</button>
+                            <WithTooltip label="比較" showLabels={showLabels}>
+                                <button onClick={() => requestPreviewView('compare')} title="比較" aria-label="比較" aria-pressed={isCompareMode || isCompareListOpen} className={`w-9 h-8 rounded-md flex items-center justify-center transition-colors ${isCompareMode || isCompareListOpen ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-blue-50'}`}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="2" /><path d="M9 15v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-4" strokeLinecap="round" /></svg>
+                                </button>
+                            </WithTooltip>
                             {isPreviewMode && measurementMethod === '6-point' && <button onClick={() => { setIsHistoryPreview(false); setIsPisaPreview(true); setIsCompareMode(false); setCompareTargetDates([]); }} aria-pressed={!isHistoryPreview && isPisaPreview} className={`px-3 h-8 rounded-md text-xs font-bold transition-colors ${!isHistoryPreview && isPisaPreview ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-blue-50'}`}>PISA</button>}
                         </div>
                         {/* Bulk Status (Edit Mode only) */}
