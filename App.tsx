@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Tooth from './components/Tooth';
 import DentalChartPrintView from './components/SixPointPrintView';
 import PisaPreview from './components/PisaPreview';
+import HistoryMockPreview from './components/HistoryMockPreview';
 import { ToothData, MeasurementMethod } from './types';
 import { DentalDB, ExaminerRecord } from './services/db';
 import CalendarModal from './components/CalendarModal';
@@ -431,6 +432,7 @@ const App: React.FC = () => {
     // Preview Mode State
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     const [isPisaPreview, setIsPisaPreview] = useState(false); // PISA Preview toggle
+    const [isHistoryPreview, setIsHistoryPreview] = useState(false);
     const [showFurcation, setShowFurcation] = useState(false); // Global Furcation involvement visibility state
     const [previewPlaqueMode, setPreviewPlaqueMode] = useState<'all' | 'plaque-only' | 'plaque-none'>('all');
     const [isCompareMode, setIsCompareMode] = useState(false); // Comparison Mode State
@@ -1518,6 +1520,9 @@ const App: React.FC = () => {
     // Render content based on mode and method
     const renderContent = () => {
         if (isPreviewMode) {
+            if (isHistoryPreview) {
+                return <HistoryMockPreview zoomLevel={zoomLevel} />;
+            }
             return (
                 <div
                     className="w-full bg-transparent print:p-0 print:bg-white print:overflow-visible touch-pan-x touch-pan-y"
@@ -1873,7 +1878,7 @@ const App: React.FC = () => {
                                 className={`w-9 h-9 border rounded-lg shadow-sm active:scale-95 transition-all flex items-center justify-center ${isPreviewMode ? 'bg-slate-800 text-white border-slate-900' : 'bg-white text-slate-800 border-slate-200'}`}
                                 onPointerDown={() => {
                                     if (isPreviewMode) {
-                                        setIsPreviewMode(false); setIsPisaPreview(false); setShowFurcation(false); setPreviewPlaqueMode('all'); setIsCompareMode(false); setCompareTargetDates([]); setZoomLevel(0.7); setPreviewContentHeight(0);
+                                        setIsPreviewMode(false); setIsPisaPreview(false); setIsHistoryPreview(false); setShowFurcation(false); setPreviewPlaqueMode('all'); setIsCompareMode(false); setCompareTargetDates([]); setZoomLevel(0.7); setPreviewContentHeight(0);
                                     } else {
                                         if (isDirty) setIsSaveConfirmModalOpen(true); else setIsPreviewMode(true);
                                     }
@@ -1936,13 +1941,14 @@ const App: React.FC = () => {
                                 <button onPointerDown={handleZoomIn} className="w-8 h-full flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded active:bg-slate-200 transition-colors font-bold text-lg leading-none pb-1" title="拡大">+</button>
                             </div>
                         )}
-                        {isPreviewMode && measurementMethod === '6-point' && (
+                        {isPreviewMode && (
                             <div className="flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5 shadow-inner h-9">
-                                <button onPointerDown={() => { setIsPisaPreview(false); }} className={`px-3 h-full rounded-md text-xs font-bold transition-all ${!isPisaPreview ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}>チャート</button>
-                                <button onPointerDown={() => { setIsPisaPreview(true); }} className={`px-3 h-full rounded-md text-xs font-bold transition-all ${isPisaPreview ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500'}`}>PISA</button>
+                                <button onClick={() => { setIsHistoryPreview(false); setIsPisaPreview(false); }} aria-pressed={!isHistoryPreview && !isPisaPreview} className={`px-3 h-full rounded-md text-xs font-bold transition-all ${!isHistoryPreview && !isPisaPreview ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}>チャート</button>
+                                {measurementMethod === '6-point' && <button onClick={() => { setIsHistoryPreview(false); setIsPisaPreview(true); }} aria-pressed={!isHistoryPreview && isPisaPreview} className={`px-3 h-full rounded-md text-xs font-bold transition-all ${!isHistoryPreview && isPisaPreview ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500'}`}>PISA</button>}
+                                <button onClick={() => setIsHistoryPreview(true)} aria-pressed={isHistoryPreview} className={`px-3 h-full rounded-md text-xs font-bold transition-all ${isHistoryPreview ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500'}`}>経過（モック）</button>
                             </div>
                         )}
-                        {isPreviewMode && (
+                        {isPreviewMode && !isHistoryPreview && (
                             <WithTooltip label={isCompareMode ? "比較終了" : "比較モード"} showLabels={showLabels}>
                                 <button
                                     className={`p-2 border rounded-lg shadow-sm active:scale-95 transition-all h-9 flex items-center justify-center ${isCompareMode ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-white text-slate-600 border-slate-200'}`}
