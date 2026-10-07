@@ -7,6 +7,7 @@ import { ToothData, MeasurementMethod } from './types';
 import { DentalDB, ExaminerRecord } from './services/db';
 import CalendarModal from './components/CalendarModal';
 import PatientSummary from './components/PatientSummary';
+import FitInputContent from './components/FitInputContent';
 import ExaminerModal, { Examiner, NONE_EXAMINER_ID } from './components/ExaminerModal';
 
 const examinerColors = [
@@ -1719,8 +1720,8 @@ const App: React.FC = () => {
 
                 <div className="flex-1 h-full overflow-hidden relative border border-slate-200 bg-slate-50 rounded-lg shadow-inner">
                     {measurementMethod === '1-point' ? (
-                        <div className="w-full min-h-full overflow-auto px-1 py-2 flex items-start justify-center touch-none select-none">
-                            <div className="flex justify-center gap-1 w-full max-w-[1120px]">
+                        <FitInputContent minWidth={790}>
+                            <div className="flex justify-center gap-1 w-full touch-none select-none">
                                 <div className="flex flex-1 min-w-0 gap-[1px] bg-white p-0 rounded border border-slate-300 shadow-sm">
                                     {currentTeethData.UR.map((tooth, index) => (
                                         <Tooth
@@ -1749,53 +1750,61 @@ const App: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </FitInputContent>
                     ) : (
                         <div
                             className="flex flex-wrap w-[200%] h-[200%] transition-transform duration-500 ease-in-out will-change-transform"
                             style={{ transform: getTranslate() }}
                         >
                             <div className="w-1/2 h-1/2 flex items-center justify-start bg-slate-100 p-0.5">
-                                <div className="bg-white p-0 rounded-lg shadow-sm border border-slate-200 w-full h-full flex flex-col items-center overflow-auto">
-                                    <div className="flex w-full h-full gap-[1px] items-start">
+                                <div className="bg-white p-0 rounded-lg shadow-sm border border-slate-200 w-full h-full min-h-0">
+                                    <FitInputContent minWidth={680}>
+                                    <div className="flex w-full gap-[1px] items-start">
                                         {currentTeethData.UR.map(tooth => (
                                             <Tooth key={tooth.id} data={tooth} onUpdate={(t) => handleToothUpdate('UR', t)} jaw="upper" method={measurementMethod} />
                                         ))}
                                         <SideLabels jaw="upper" method={measurementMethod} />
                                     </div>
+                                    </FitInputContent>
                                 </div>
                             </div>
 
                             <div className="w-1/2 h-1/2 flex items-center justify-end bg-slate-100 p-0.5">
-                                <div className="bg-white p-0 rounded-lg shadow-sm border border-slate-200 w-full h-full flex flex-col items-center overflow-auto">
-                                    <div className="flex w-full h-full gap-[1px] items-start">
+                                <div className="bg-white p-0 rounded-lg shadow-sm border border-slate-200 w-full h-full min-h-0">
+                                    <FitInputContent minWidth={680}>
+                                    <div className="flex w-full gap-[1px] items-start">
                                         <SideLabels jaw="upper" method={measurementMethod} />
                                         {currentTeethData.UL.map(tooth => (
                                             <Tooth key={tooth.id} data={tooth} onUpdate={(t) => handleToothUpdate('UL', t)} jaw="upper" method={measurementMethod} />
                                         ))}
                                     </div>
+                                    </FitInputContent>
                                 </div>
                             </div>
 
                             <div className="w-1/2 h-1/2 flex items-center justify-start bg-slate-100 p-0.5">
-                                <div className="bg-white p-0 rounded-lg shadow-sm border border-slate-200 w-full h-full flex flex-col items-center overflow-auto">
-                                    <div className="flex w-full h-full gap-[1px] items-start">
+                                <div className="bg-white p-0 rounded-lg shadow-sm border border-slate-200 w-full h-full min-h-0">
+                                    <FitInputContent minWidth={680}>
+                                    <div className="flex w-full gap-[1px] items-start">
                                         {currentTeethData.LR.map(tooth => (
                                             <Tooth key={tooth.id} data={tooth} onUpdate={(t) => handleToothUpdate('LR', t)} jaw="lower" method={measurementMethod} />
                                         ))}
                                         <SideLabels jaw="lower" method={measurementMethod} />
                                     </div>
+                                    </FitInputContent>
                                 </div>
                             </div>
 
                             <div className="w-1/2 h-1/2 flex items-center justify-end bg-slate-100 p-0.5">
-                                <div className="bg-white p-0 rounded-lg shadow-sm border border-slate-200 w-full h-full flex flex-col items-center overflow-auto">
-                                    <div className="flex w-full h-full gap-[1px] items-start">
+                                <div className="bg-white p-0 rounded-lg shadow-sm border border-slate-200 w-full h-full min-h-0">
+                                    <FitInputContent minWidth={680}>
+                                    <div className="flex w-full gap-[1px] items-start">
                                         <SideLabels jaw="lower" method={measurementMethod} />
                                         {currentTeethData.LL.map(tooth => (
                                             <Tooth key={tooth.id} data={tooth} onUpdate={(t) => handleToothUpdate('LL', t)} jaw="lower" method={measurementMethod} />
                                         ))}
                                     </div>
+                                    </FitInputContent>
                                 </div>
                             </div>
                         </div>
@@ -2003,7 +2012,7 @@ const App: React.FC = () => {
             </header>
 
             {/* Main Content Area */}
-            <main className="flex-1 w-full overflow-auto relative bg-slate-100 print:bg-white print:p-0 print:block">
+            <main className={`flex-1 min-h-0 w-full ${isPreviewMode ? 'overflow-auto' : 'overflow-hidden'} relative bg-slate-100 print:bg-white print:p-0 print:block`}>
                 {renderContent()}
             </main>
 
