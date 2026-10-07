@@ -6,7 +6,7 @@ import HistoryMockPreview from './components/HistoryMockPreview';
 import { ToothData, MeasurementMethod } from './types';
 import { DentalDB, ExaminerRecord } from './services/db';
 import CalendarModal from './components/CalendarModal';
-import SettingsModal from './components/SettingsModal';
+import PatientSummary from './components/PatientSummary';
 import ExaminerModal, { Examiner, NONE_EXAMINER_ID } from './components/ExaminerModal';
 
 const examinerColors = [
@@ -457,7 +457,6 @@ const App: React.FC = () => {
     // Modal States
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [markedDates, setMarkedDates] = useState<string[]>([]);
     const [isSaveConfirmModalOpen, setIsSaveConfirmModalOpen] = useState(false); // New modal for save confirmation
 
@@ -1831,29 +1830,10 @@ const App: React.FC = () => {
 
             {/* Header - Compact (Hidden on print) */}
             <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50 shrink-0 print:hidden">
-                <div className="w-full max-w-[810px] mx-auto px-1.5 py-1.5 flex items-center justify-between gap-1.5 border-b border-slate-100">
-                    <div className="flex items-center gap-1.5 min-w-[168px]">
-                        <div className="flex flex-col">
-                            <span className="font-mono font-bold text-slate-400 text-xs leading-tight">000000001</span>
-                            <div className="flex items-center gap-2">
-                                <span className="font-black text-slate-800 text-lg leading-none">吉田 太郎</span>
-                                <span className="text-slate-400 font-bold text-sm">様</span>
-                                <button
-                                    onPointerDown={() => setIsSettingsOpen(true)}
-                                    className="p-1.5 bg-white border border-slate-200 rounded-lg text-slate-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 shadow-sm active:scale-95 transition-all flex items-center justify-center outline-none"
-                                    title="設定"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774a1.125 1.125 0 0 1 .12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.894.15c.542.09.94.56.94 1.109v1.094c0 .55-.398 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738a1.125 1.125 0 0 1-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.45.12l-.737-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.02-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527a1.125 1.125 0 0 1-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.764-.383.929-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 0 1 .12-1.45l.774-.773a1.125 1.125 0 0 1 1.45-.12l.738.527c.35.25.806.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <span className="text-slate-500 text-xs font-bold mt-1">（1975/01/01　51歳）</span>
-                        </div>
-                    </div>
+                <div className="w-full max-w-[1100px] mx-auto px-2 py-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-slate-100">
+                    <PatientSummary patient={{ number: '000000001', kana: 'ヨシダ タロウ', name: '吉田 太郎', birthDate: '1975-01-01' }} />
 
-                    <div className="flex items-center gap-1.5 justify-center flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5 justify-center flex-1 min-w-0">
                         <button
                             onPointerDown={() => !isPreviewMode && !isCompareMode && setIsCalendarOpen(true)}
                             disabled={isPreviewMode || isCompareMode}
@@ -1928,11 +1908,11 @@ const App: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="w-full max-w-[810px] mx-auto px-1.5 py-1.5 flex items-center justify-between gap-1.5">
+                <div className="w-full max-w-[1100px] mx-auto px-2 py-1 flex flex-wrap items-center justify-between gap-1.5">
                     {/* Left Group */}
-                    <div className="flex items-center gap-2 shrink-0 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 min-w-0">
                         <MethodSelector current={measurementMethod} onChange={(m) => { setMeasurementMethod(m); if (m !== '6-point') setIsPisaPreview(false); }} />
-                        <div className={`${measurementMethod === '1-point' || isPreviewMode || isCompareMode ? 'hidden' : 'block'}`}>
+                        <div className={`shrink-0 ${measurementMethod === '1-point' || isPreviewMode || isCompareMode ? 'hidden' : 'block'}`}>
                             <MiniMap current={currentQuadrant} onSelect={setCurrentQuadrant} />
                         </div>
                         {!isPreviewMode && !isCompareMode && (
@@ -2262,11 +2242,6 @@ const App: React.FC = () => {
                 onSelectDate={handleSelectDate}
                 selectedDate={selectedDate}
                 markedDates={markedDates}
-            />
-
-            <SettingsModal
-                isOpen={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
             />
 
             <ExaminerModal
